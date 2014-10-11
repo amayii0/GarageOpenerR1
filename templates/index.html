@@ -1,0 +1,137 @@
+<!--
+Original source code taken from
+  Raspberry Pi control from mobile device or desktop web browser 
+  http://electronicsbyexamples.blogspot.be/2014/02/raspberry-pi-control-from-mobile-device.html
+-->
+
+<!doctype html>
+<title>Garage remote</title>
+<head>
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.css" />
+  <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+  <script src="http://code.jquery.com/mobile/1.4.0/jquery.mobile-1.4.0.min.js"></script>
+</head>
+
+<style>
+  h3, h4 {text-align: center;}
+  span {font-weight: bold;}
+  .containing-element .ui-slider-switch { width: 18em }
+</style>
+
+<script type=text/javascript>
+    // Post the requested action by getting _ToggleSwitch using JSON 
+    function ToggleSwitch(sAction)
+    {
+        $.getJSON('/_ToggleSwitch', {action: sAction});
+    }
+
+    // For each command button, make a specific call to ToggleSwitch
+    $(function() {
+      $("#button-open").click(function(){
+        ToggleSwitch("open");
+      });
+    });
+    $(function() {
+      $("#button-close").click(function(){
+        ToggleSwitch("close");
+      });
+    });
+    $(function() {
+      $("#button-intermediate").click(function(){
+        ToggleSwitch("intermediate");
+      });
+    });
+
+    // periodically (500ms) do an ajax request to get the button state
+    // modify the span tag to reflect the state (pressed or not)
+    // the state text comes from the JSON string returned by the server
+    $(function button() {
+          $.getJSON('/_ReadState', function(data)
+              {
+                  // Read states from JSON
+                  var openState = data.openState;
+                  var closedState = data.closedState;
+                  var doorState = data.doorState;
+                  
+                  // Define special garage states
+                  var isIntermediateState = (!openState && !closedState);
+                  var isErrorState = (openState && closedState);
+                  
+                  // Compute friendly state
+                  var friendlyState = "Erreur!";
+                  switch (doorState) {
+                    case 1: friendlyState = "Ouverte"; break;
+                    case 0: friendlyState = "Fermée"; break;
+                    case -1: friendlyState = "Erreur"; break;
+                    case -2: friendlyState = "Mi chemin"; break;
+                    default: friendlyState = "Code inconnu : " + doorState; break;
+                  }
+                  
+                  // Output debug text 
+                  $("#openState").text(openState);
+                  $("#closedState").text(closedState);
+                  $("#friendlyState").text(friendlyState);
+                  $("#doorState").text(doorState);
+                  
+                  // Output to controls
+                  $("#radio-state-open").prop("checked", !isErrorState && openState).checkboxradio("refresh");
+                  $("#radio-state-intermediate").prop("checked", !isErrorState && isIntermediateState).checkboxradio("refresh");
+                  $("#radio-state-closed").prop("checked", !isErrorState && closedState).checkboxradio("refresh");
+                  //$("#radio-state-closed").prop("checked", isErrorState).checkboxradio("refresh");
+                  
+                  // To reload
+                  setTimeout(function(){button();},500);
+              });
+    });
+</script>
+
+<div data-role="page" data-theme="b">
+  <div data-role="header">
+    <div><h3>Garage remote</h3></div>
+  </div>
+
+  <div data-role="content">
+    <form>
+    <!-- This paragraph outputs raw states for easier debug. This is temporary code -->
+    <p>
+      Open switch = <span id="openState"></span> / Close switch = <span id="closedState"></span><br>
+      Friendly state = <span id="friendlyState"></span> (<span id="doorState"></span>)
+    </p>
+    <br>
+
+    <!-- This table contains the command buttons -->
+    <table width="100%">
+    <tr>
+      <td><a href="index.html" data-role="button" data-icon="arrow-u" id="button-open">Ouvrir</a></td>
+      <td><a href="index.html" data-role="button" data-icon="arrow-d" id="button-close">Fermer</a></td>
+    </tr>
+    <tr>
+      <td colspan="2"><a href="index.html" data-role="button" data-icon="gear" id="button-intermediate">Ouvrir à moitié</a></td>
+    </tr>
+    </table>
+
+    <!--
+        This radio group is used to better visualize the state of the door
+        Note that to keep this friendly it does not show error states
+    -->
+    <div data-role="fieldcontain">
+      <fieldset data-role="controlgroup">
+  	   <legend>Etat de la porte</legend>
+  	   <input type="radio" name="radio-state" id="radio-state-open" class="custom" />
+       <label for="radio-state-open">Ouverte</label>
+  	   <input type="radio" name="radio-state" id="radio-state-intermediate" class="custom" />
+       <label for="radio-state-intermediate">A mi-chemin</label>
+  	   <input type="radio" name="radio-state" id="radio-state-closed" class="custom" />
+       <label for="radio-state-closed">Fermée</label>
+      </fieldset>
+    </div>
+
+    </form>
+  </div>
+
+ <!-- The footer simply outputs the uptime of the RPi -->
+ <div data-role="footer">
+    <div><h4>This Raspberry Pi has been {{uptime}}</h4></div>
+  </div>
+</div>
