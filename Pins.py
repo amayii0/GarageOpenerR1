@@ -2,13 +2,15 @@
 #   Raspberry Pi control from mobile device or desktop web browser 
 #   http://electronicsbyexamples.blogspot.be/2014/02/raspberry-pi-control-from-mobile-device.html
 
+# TODO : Rely on DoorDriver.py instead
+
 import RPi.GPIO as GPIO
 import time
 
 # BCM to WiringPi pin numbers
 PIN_RELAYCMD    = 17 # Relay command pin
-PIN_OPENSWITCH  = 18 # Button pin - Open state
-PIN_CLOSESWITCH = 27 # Button pin - Closed state
+PIN_OPENSWITCH  = 27 # Button pin - Open state
+PIN_CLOSESWITCH = 18 # Button pin - Closed state
 
 def Init():
     GPIO.setwarnings(False) # suppress GPIO used message

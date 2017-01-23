@@ -12,7 +12,7 @@ app = Flask(__name__)
 def Index():
     return render_template("index.html", uptime=GetUptime())
 
-# Ajax GET call this function to send switch comands
+# Ajax GET call this function to send switch comansd
 @app.route("/_ToggleSwitch")
 def _ToggleSwitch():
     action = request.args.get('action')
@@ -47,7 +47,7 @@ def _ToggleSwitch():
         print "Using fallback to simply send a switch command"
         Pins.ShortSwitch()
 
-    # Close action    
+    # Intermediate action    
     if (action=="intermediate"):
       print "FIX ME : Intermediate command, what to do ? We don't know if door is moving/stopped and what to send."
 
