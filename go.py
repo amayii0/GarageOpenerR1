@@ -12,7 +12,7 @@ app = Flask(__name__)
 def Index():
     return render_template("index.html", uptime=GetUptime())
 
-# Ajax GET call this function to send switch comansd
+# Ajax GET call this function to send switch commands
 @app.route("/_ToggleSwitch")
 def _ToggleSwitch():
     action = request.args.get('action')
